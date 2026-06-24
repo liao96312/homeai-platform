@@ -1,0 +1,42 @@
+AGENT_TOOL_CATALOG = [
+    {
+        "name": "lead_score",
+        "route": "sales",
+        "intent": "sales_lead",
+        "label": "销售线索评分",
+        "description": "从客户描述中提取预算、面积、风格和意向信号，生成跟进建议。",
+        "requiresHumanReview": False,
+    },
+    {
+        "name": "requirement_card",
+        "route": "design",
+        "intent": "design_requirement",
+        "label": "设计需求卡",
+        "description": "把客户户型、风格、预算和重点空间整理为结构化设计需求。",
+        "requiresHumanReview": False,
+    },
+    {
+        "name": "promo_copy",
+        "route": "promo",
+        "intent": "promo_copy",
+        "label": "推广文案生成",
+        "description": "结合推广主题和知识库生成小红书、抖音、朋友圈等平台文案。",
+        "requiresHumanReview": True,
+    },
+    {
+        "name": "video_generation",
+        "route": "video",
+        "intent": "video_generation",
+        "label": "视频生成",
+        "description": "调用 MoneyPrinterTurbo 创建短视频生成任务，适合产品宣传片、口播视频、活动视频等需求。",
+        "requiresHumanReview": True,
+    },
+    {
+        "name": "chat",
+        "route": "chat",
+        "intent": "chat",
+        "label": "通用聊天/RAG",
+        "description": "面向当前助手会话执行 DeepSeek + RAG 回复。",
+        "requiresHumanReview": False,
+    },
+]

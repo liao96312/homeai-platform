@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "api": "uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000",
+    "install:frontend": "npm --prefix frontend install",
+    "install:wecom": "npm --prefix integrations/wecom-long-connection install",
+    "wecom:long": "npm --prefix integrations/wecom-long-connection start",
+    "start:dev": "powershell -ExecutionPolicy Bypass -File scripts/start-dev.ps1",
+    "db:migrate": "powershell -ExecutionPolicy Bypass -File scripts/migrate.ps1",
+    "check:deploy": "uv run --with-requirements backend/requirements.txt python scripts/check_deploy_ready.py",
+    "smoke": "powershell -ExecutionPolicy Bypass -File scripts/smoke.ps1",
+    "clean:local": "powershell -ExecutionPolicy Bypass -File scripts/clean-local.ps1"
+  }
+}

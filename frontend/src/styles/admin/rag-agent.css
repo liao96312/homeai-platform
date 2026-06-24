@@ -1,0 +1,520 @@
+﻿/* ============================================================
+   RAG OBSERVABILITY
+   ============================================================ */
+
+.metric-grid.compact {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 16px;
+}
+
+.rag-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rag-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rag-log-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(240px, 0.8fr);
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  background: #f8fafc;
+}
+
+.rag-log-main {
+  min-width: 0;
+}
+
+.rag-log-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.rag-log-title b {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.rag-log-title span,
+.rag-log-title em {
+  border-radius: 999px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.rag-log-title span {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.rag-log-title em {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.rag-log-main p {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.rag-log-main small {
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+.rag-log-main .rag-gate-line {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-secondary);
+}
+
+.rag-source-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.rag-source {
+  display: grid;
+  grid-template-columns: minmax(80px, 0.8fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid var(--border-light);
+}
+
+.rag-source b,
+.rag-source span,
+.rag-source em {
+  font-size: 12px;
+}
+
+.rag-source b {
+  color: var(--text);
+}
+
+.rag-source span {
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rag-source em {
+  color: var(--text-tertiary);
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.agent-stat-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.dot-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dot-status::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.dot-orange::before {
+  background: var(--warning);
+  animation: none;
+  box-shadow: 0 0 6px var(--warning);
+}
+
+.dot-red::before {
+  background: var(--danger);
+  animation: none;
+  box-shadow: 0 0 6px var(--danger);
+}
+
+.agent-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.mini-btn {
+  height: 28px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  border-radius: var(--radius-sm);
+  padding: 0 12px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  color: var(--text-secondary);
+}
+
+.mini-btn:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.mini-btn.active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.agent-run-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.agent-run-launcher .card-header {
+  align-items: flex-start;
+}
+
+.agent-run-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 160px 120px;
+  gap: 14px;
+  padding: 18px 20px 20px;
+}
+
+.agent-run-form label,
+.handoff-resume,
+.agent-run-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.agent-run-form textarea,
+.agent-run-form input,
+.agent-run-form select,
+.agent-run-filters select,
+.handoff-row input,
+.handoff-resume textarea,
+.handoff-resume input,
+.handoff-resume select {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--text);
+  background: #fff;
+}
+
+.agent-run-form textarea,
+.handoff-resume textarea {
+  min-height: 86px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.agent-run-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.9fr) minmax(0, 1.35fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.agent-run-list-card,
+.agent-run-detail-card {
+  min-height: 480px;
+}
+
+.agent-run-filters {
+  flex-direction: row;
+  padding: 0 20px 16px;
+}
+
+.agent-run-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px 18px;
+  max-height: 680px;
+  overflow: auto;
+}
+
+.agent-run-row {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  padding: 12px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.agent-run-row:hover,
+.agent-run-row.active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.agent-run-row b,
+.agent-run-row span,
+.agent-run-row small {
+  display: block;
+  min-width: 0;
+}
+
+.agent-run-row b {
+  color: var(--text);
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-run-row span,
+.agent-run-row small {
+  color: var(--text-tertiary);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.agent-run-row small {
+  margin-top: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.agent-run-row em {
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+  color: var(--primary);
+  white-space: nowrap;
+}
+
+.run-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-top: 4px;
+  background: var(--text-tertiary);
+}
+
+.run-status-dot.completed { background: var(--success); }
+.run-status-dot.running { background: var(--warning); }
+.run-status-dot.waiting_human { background: var(--warning); box-shadow: 0 0 0 4px #fef3c7; }
+.run-status-dot.failed,
+.run-status-dot.cancelled { background: var(--danger); }
+
+.agent-run-detail {
+  padding: 0 20px 20px;
+}
+
+.agent-run-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.agent-run-summary div,
+.agent-run-input,
+.agent-handoff-panel,
+.agent-step,
+.agent-tool-call {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+
+.agent-run-summary div {
+  padding: 10px 12px;
+}
+
+.agent-run-summary span,
+.agent-run-input span,
+.agent-section-title {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.agent-run-summary b {
+  display: block;
+  margin-top: 4px;
+  color: var(--text);
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-run-input {
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.agent-run-input p {
+  margin: 6px 0 0;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.agent-run-error {
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border-radius: var(--radius-sm);
+  background: var(--danger-light);
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.agent-run-actions,
+.handoff-row {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 14px;
+}
+
+.agent-run-actions button,
+.handoff-row button,
+.handoff-resume button {
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.agent-run-actions button:hover,
+.handoff-row button:hover,
+.handoff-resume button:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.agent-handoff-panel {
+  padding: 12px;
+  margin-bottom: 14px;
+  background: #fffbeb;
+}
+
+.handoff-row input {
+  flex: 1;
+}
+
+.handoff-resume {
+  margin-top: 10px;
+}
+
+.handoff-resume button {
+  width: fit-content;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.agent-section-title {
+  margin: 16px 0 8px;
+  color: var(--text-secondary);
+}
+
+.agent-step-list,
+.agent-tool-call-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agent-step,
+.agent-tool-call {
+  padding: 10px 12px;
+}
+
+.agent-step > div,
+.agent-tool-call > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.agent-step b,
+.agent-tool-call b {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.agent-step span,
+.agent-tool-call span {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 700;
+}
+
+.agent-tool-call em {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--danger);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.agent-step pre,
+.agent-tool-call pre {
+  margin: 0;
+  max-height: 220px;
+  overflow: auto;
+  border-radius: var(--radius-sm);
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 10px;
+  font-size: 11px;
+  line-height: 1.55;
+}
+

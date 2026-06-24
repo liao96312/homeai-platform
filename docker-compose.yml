@@ -1,0 +1,87 @@
+name: ${COMPOSE_PROJECT_NAME:-pinai}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pinai-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pinai_ai}
+      POSTGRES_USER: ${POSTGRES_USER:-pinai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-pinai-dev}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pinai} -d ${POSTGRES_DB:-pinai_ai}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: pinai-backend
+    working_dir: /app
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://${POSTGRES_USER:-pinai}:${POSTGRES_PASSWORD:-change-me-pinai-dev}@postgres:5432/${POSTGRES_DB:-pinai_ai}}
+      APP_ENV: ${APP_ENV:-development}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-replace-with-a-long-random-secret}
+      CORS_ORIGINS: ${CORS_ORIGINS:-["http://localhost:5173","http://localhost:5174","http://127.0.0.1:5173","http://127.0.0.1:5174"]}
+      CORS_METHODS: ${CORS_METHODS:-["GET","POST","PUT","PATCH","DELETE","OPTIONS"]}
+      CORS_HEADERS: ${CORS_HEADERS:-["Authorization","Content-Type","X-Request-Id"]}
+      AI_PROVIDER: ${AI_PROVIDER:-deepseek}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      DEEPSEEK_DEFAULT_MODEL: ${DEEPSEEK_DEFAULT_MODEL:-deepseek-chat}
+      MULTIPOST_API_BASE_URL: ${MULTIPOST_API_BASE_URL:-https://api.multipost.app}
+      MULTIPOST_API_KEY: ${MULTIPOST_API_KEY:-}
+      MULTIPOST_TARGET_CLIENT_ID: ${MULTIPOST_TARGET_CLIENT_ID:-}
+      MULTIPOST_AUTO_PUBLISH: ${MULTIPOST_AUTO_PUBLISH:-true}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-fastembed}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
+      EMBEDDING_ALLOW_DOWNLOAD: ${EMBEDDING_ALLOW_DOWNLOAD:-false}
+      EMBEDDING_CACHE_DIR: ${EMBEDDING_CACHE_DIR:-/app/models/fastembed}
+      HF_ENDPOINT: ${HF_ENDPOINT:-https://hf-mirror.com}
+      CHROMA_PERSIST_DIR: /app/chroma_data
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./backend:/app/backend
+      - ./alembic.ini:/app/alembic.ini:ro
+      - ./logs:/app/logs
+      - uploads:/app/uploads
+      - chroma_data:/app/chroma_data
+      - embedding_models:/app/models/fastembed
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).read()\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    command: >
+      python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE: ${VITE_API_BASE:-/}
+    container_name: pinai-frontend
+    ports:
+      - "127.0.0.1:5173:8080"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  chroma_data:
+  embedding_models:
+  uploads:

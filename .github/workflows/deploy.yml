@@ -1,0 +1,47 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      enable_wecom:
+        description: "Start WeCom long-connection profile"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    name: Reuse CI Checks
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Deploy To Cloud Server
+    runs-on: ubuntu-latest
+    needs: ci
+    environment: production
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          ENABLE_WECOM: ${{ inputs.enable_wecom || secrets.ENABLE_WECOM || 'false' }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          envs: DEPLOY_PATH,ENABLE_WECOM
+          script_stop: true
+          script: |
+            cd "$DEPLOY_PATH"
+            test -f .env.production
+            bash scripts/check-production-env.sh .env.production
+            ENABLE_WECOM="$ENABLE_WECOM" bash scripts/deploy-cloud.sh
+            docker compose -f docker-compose.prod.yml --env-file .env.production ps

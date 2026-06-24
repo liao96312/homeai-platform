@@ -1,0 +1,25 @@
+fastapi==0.138.0
+uvicorn[standard]==0.35.0
+SQLAlchemy==2.0.41
+alembic==1.16.2
+psycopg[binary]==3.2.9
+pydantic-settings==2.14.2
+python-dotenv==1.2.2
+python-jose[cryptography]==3.5.0
+httpx==0.28.1
+python-multipart==0.0.32
+defusedxml>=0.7.1,<0.8.0
+fastembed==0.8.0
+# Note: chromadb 0.5.x has had several breaking patch releases; pin the minor
+# range to avoid surprise breakage on `pip install -r requirements.txt`.
+chromadb>=0.5.20,<0.6.0
+docling>=2.104.0,<3.0.0
+openpyxl>=3.1.0,<4.0.0
+pypdf>=6.13.3,<7.0.0
+pillow>=12.2.0,<13.0.0
+transformers>=5.12.1,<6.0.0
+pytest>=9.0.3,<10.0.0
+# LangGraph is used as the preferred agent runtime in agent_runtime.py with a
+# built-in fallback when import/runtime compatibility changes.
+langgraph>=1.2.6,<2.0.0
+redis>=5.0.0,<6.0.0

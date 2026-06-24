@@ -1,0 +1,26 @@
+# Build artifacts — already built inside the image, don't copy host copies
+dist/
+build/
+
+# Dependencies — installed inside the image via npm ci
+node_modules/
+
+# Local env files (must not leak into the image)
+.env
+.env.local
+.env.*.local
+
+# Editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+*.log
+
+# Tests & docs not needed at runtime
+*.test.js
+*.test.jsx
+*.spec.js
+*.spec.jsx
+__tests__/
+coverage/
+*.md

@@ -1,0 +1,31 @@
+{
+  email {$CADDY_ADMIN_EMAIL}
+}
+
+{$CADDY_DOMAIN} {
+  encode zstd gzip
+
+  header {
+    # HSTS: force HTTPS for 1 year, include subdomains
+    Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    # Anti-clickjacking
+    X-Frame-Options "SAMEORIGIN"
+    # Prevent MIME-type sniffing
+    X-Content-Type-Options "nosniff"
+    # Limit referrer leakage to same origin on cross-origin navigations
+    Referrer-Policy "strict-origin-when-cross-origin"
+    # Lock down sensitive browser capabilities
+    Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+    # Content Security Policy. Vite build emits hashed asset bundles under
+    # same origin, so scripts/styles can be restricted to 'self' (styles still
+    # need 'unsafe-inline' because React injects runtime styles). Loosen
+    # connect-src if you add cross-origin API hosts later.
+    Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'"
+    # Don't leak Caddy version
+    -Server
+    # Cache-control for HTML entrypoint (immutable hashed assets are cached by the browser automatically)
+    ?Cache-Control "no-cache"
+  }
+
+  reverse_proxy frontend:8080
+}

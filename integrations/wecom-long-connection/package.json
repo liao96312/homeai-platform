@@ -1,0 +1,12 @@
+{
+  "name": "pinai-wecom-long-connection",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node worker.mjs"
+  },
+  "dependencies": {
+    "@wecom/aibot-node-sdk": "^1.0.0",
+    "dotenv": "^16.4.7"
+  }
+}
