@@ -210,10 +210,10 @@ async def csrf_origin_middleware(request: Request, call_next):
 
     # The internal wecom token bypass is only honored when the provided value
     # matches the configured token. Previously ANY non-empty value bypassed the
-    # check, allowing a browser attacker to set x-pinai-wecom-token: x and skip
+    # check, allowing a browser attacker to set x-homeai-wecom-token: x and skip
     # Origin validation entirely.
     configured_wecom_token = (settings.wecom_internal_token or "").strip()
-    provided_wecom_token = request.headers.get("x-pinai-wecom-token", "").strip()
+    provided_wecom_token = request.headers.get("x-homeai-wecom-token", "").strip()
     origin_header = request.headers.get("origin") or request.headers.get("referer", "")
     if (
         configured_wecom_token

@@ -45,7 +45,7 @@ def test_wecom_internal_token_does_not_bypass_browser_origin_check():
     with TestClient(app) as client:
         response = client.post(
             "/api/wecom/long-connection/inbound",
-            headers={"Origin": "http://evil.example", "X-PinAI-Wecom-Token": "anything"},
+            headers={"Origin": "http://evil.example", "X-HomeAI-Wecom-Token": "anything"},
             json={"msg_type": "text", "content": "hello"},
         )
 

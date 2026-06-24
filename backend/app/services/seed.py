@@ -1,4 +1,4 @@
-﻿from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from backend.app.core.config import settings
@@ -147,10 +147,10 @@ def seed_if_empty(db: Session) -> None:
             DashboardMetric(label="线索转化率", value="32.8%", trend="+5.2%", icon="🎯", theme="green"),
             DashboardMetric(label="知识库命中", value="91.4%", trend="+2.1%", icon="📚", theme="orange"),
             DashboardMetric(label="待处理告警", value="7", trend="-3", icon="🔔", theme="purple"),
-            Agent(key="sales", name="销售AI助手 · 小品", icon="🤖", theme="blue", status="online", calls_today=0, success_rate="0%", avg_latency="0s"),
-            Agent(key="design", name="设计AI助手 · 品设", icon="🎨", theme="orange", status="online", calls_today=0, success_rate="0%", avg_latency="0s"),
-            Agent(key="promo", name="推广AI助手 · 品创", icon="✨", theme="purple", status="online", calls_today=0, success_rate="0%", avg_latency="0s"),
-            Agent(key="management", name="管理AI助手 · 品策", icon="📊", theme="green", status="online", calls_today=0, success_rate="0%", avg_latency="0s"),
+            Agent(key="sales", name="销售AI助手 · 销售顾问", icon="🤖", theme="blue", status="online", calls_today=0, success_rate="0%", avg_latency="0s"),
+            Agent(key="design", name="设计AI助手 · 方案顾问", icon="🎨", theme="orange", status="online", calls_today=0, success_rate="0%", avg_latency="0s"),
+            Agent(key="promo", name="推广AI助手 · 内容增长", icon="✨", theme="purple", status="online", calls_today=0, success_rate="0%", avg_latency="0s"),
+            Agent(key="management", name="管理AI助手 · 经营参谋", icon="📊", theme="green", status="online", calls_today=0, success_rate="0%", avg_latency="0s"),
             OperationLog(icon="🔐", title="修改设计师角色权限", detail="新增：产品知识库「查看」权限 · 操作人：管理员", time_label="今天 10:32", theme="purple"),
             OperationLog(icon="📚", title="同步产品知识库", detail="新增 24 篇文档，更新 126 个切片", time_label="今天 09:18", theme="blue"),
             OperationLog(icon="⚙️", title="切换默认模型", detail="销售AI助手切换到 DeepSeek 默认模型配置", time_label="昨天 16:20", theme="orange"),
@@ -161,8 +161,8 @@ def seed_if_empty(db: Session) -> None:
         [
             Conversation(
                 key="sales",
-                name="销售AI助手 · 小品",
-                assistant_name="销售AI · 小品",
+                name="销售AI助手 · 销售顾问",
+                assistant_name="销售AI · 销售顾问",
                 icon="🤖",
                 theme="sales",
                 preview="[AI] 客户李总询价120平新中式，已生成报价方案",
@@ -170,15 +170,15 @@ def seed_if_empty(db: Session) -> None:
                 unread=3,
                 quick_actions=["客户意向分析", "生成报价", "异议处理", "推荐产品"],
                 messages=[
-                    {"sender": "ai", "type": "text", "content": "我是销售AI小品，可以帮你做客户意向分析、报价方案和跟进话术。"},
+                    {"sender": "ai", "type": "text", "content": "我是销售AI销售顾问，可以帮你做客户意向分析、报价方案和跟进话术。"},
                     {"sender": "me", "type": "text", "content": "客户李总询价120平新中式，预算20万左右"},
                     {"sender": "ai", "type": "card", "title": "客户意向分析", "rows": [["意向评分", "72分"], ["推荐动作", "48小时内邀约到店"], ["报价区间", "18.8万-23.6万"]]},
                 ],
             ),
             Conversation(
                 key="design",
-                name="设计AI助手 · 品设",
-                assistant_name="设计AI · 品设",
+                name="设计AI助手 · 方案顾问",
+                assistant_name="设计AI · 方案顾问",
                 icon="🎨",
                 theme="design",
                 preview="[AI] 已为您生成3套户型方案，请查看",
@@ -186,15 +186,15 @@ def seed_if_empty(db: Session) -> None:
                 unread=1,
                 quick_actions=["分析户型", "生成风格", "材料清单", "效果图建议"],
                 messages=[
-                    {"sender": "ai", "type": "text", "content": "我是设计AI品设，可以分析户型、推荐风格、生成材料清单。"},
+                    {"sender": "ai", "type": "text", "content": "我是设计AI方案顾问，可以分析户型、推荐风格、生成材料清单。"},
                     {"sender": "me", "type": "text", "content": "想做新中式，客餐厅要显大"},
                     {"sender": "ai", "type": "design", "title": "新中式客餐厅方案", "subtitle": "陶土棕 + 云雾灰 + 铜色五金"},
                 ],
             ),
             Conversation(
                 key="promo",
-                name="推广AI助手 · 品创",
-                assistant_name="推广AI · 品创",
+                name="推广AI助手 · 内容增长",
+                assistant_name="推广AI · 内容增长",
                 icon="✨",
                 theme="promo",
                 preview="[AI] 小红书爆款文案已生成，点击一键发布",
@@ -202,15 +202,15 @@ def seed_if_empty(db: Session) -> None:
                 unread=0,
                 quick_actions=["生成小红书文案", "生成抖音脚本", "朋友圈文案", "活动海报文案"],
                 messages=[
-                    {"sender": "ai", "type": "text", "content": "我是推广AI品创，可以一键生成小红书、抖音、朋友圈和活动文案。"},
+                    {"sender": "ai", "type": "text", "content": "我是推广AI内容增长，可以一键生成小红书、抖音、朋友圈和活动文案。"},
                     {"sender": "me", "type": "text", "content": "帮我写个小红书，主题是新中式全屋定制，突出环保材质"},
                     {"sender": "ai", "type": "copy", "platform": "📕 小红书", "title": "🏮 住了3个月，才明白选新中式全屋的正确打开方式", "body": "装修前我以为新中式=贵+老气\n装完才发现，是我肤浅了！\n\n✅ 0甲醛|E0级板材，孩子摸完不过敏\n✅ 燕尾榫工艺，20年不松动\n✅ 整屋收纳设计，东西再多也不乱\n\n#新中式装修 #全屋定制 #家装日记"},
                 ],
             ),
             Conversation(
                 key="management",
-                name="管理AI助手 · 品策",
-                assistant_name="管理AI · 品策",
+                name="管理AI助手 · 经营参谋",
+                assistant_name="管理AI · 经营参谋",
                 icon="📊",
                 theme="management",
                 preview="[AI] 可基于管理库回答经营数据、绩效和战略资料问题",
@@ -218,7 +218,7 @@ def seed_if_empty(db: Session) -> None:
                 unread=0,
                 quick_actions=["经营数据解读", "绩效资料查询", "制度资料", "战略资料摘要"],
                 messages=[
-                    {"sender": "ai", "type": "text", "content": "我是管理AI品策，可以基于管理库和公共库协助查看经营资料、人员绩效和战略信息。"},
+                    {"sender": "ai", "type": "text", "content": "我是管理AI经营参谋，可以基于管理库和公共库协助查看经营资料、人员绩效和战略信息。"},
                 ],
             ),
         ]
@@ -499,10 +499,10 @@ def repair_demo_copy(db: Session) -> None:
             changed = True
 
     agent_specs = {
-        "sales": ("销售AI助手 · 小品", "🤖", "blue"),
-        "design": ("设计AI助手 · 品设", "🎨", "orange"),
-        "promo": ("推广AI助手 · 品创", "✨", "purple"),
-        "management": ("管理AI助手 · 品策", "📊", "green"),
+        "sales": ("销售AI助手 · 销售顾问", "🤖", "blue"),
+        "design": ("设计AI助手 · 方案顾问", "🎨", "orange"),
+        "promo": ("推广AI助手 · 内容增长", "✨", "purple"),
+        "management": ("管理AI助手 · 经营参谋", "📊", "green"),
     }
     agents = {agent.key: agent for agent in db.scalars(select(Agent)).all()}
     for key, spec in agent_specs.items():
@@ -540,10 +540,10 @@ def repair_demo_copy(db: Session) -> None:
             changed = True
 
     conversations = {
-        "sales": ("销售AI助手 · 小品", "销售AI · 小品", "🤖", "我可以帮你做客户意向分析、报价方案和跟进话术。"),
-        "design": ("设计AI助手 · 品设", "设计AI · 品设", "🎨", "我可以分析户型、推荐风格、生成材料清单。"),
-        "promo": ("推广AI助手 · 品创", "推广AI · 品创", "✨", "我可以生成小红书、抖音、朋友圈和活动文案。"),
-        "management": ("管理AI助手 · 品策", "管理AI · 品策", "📊", "我可以基于管理库和公共库协助查看经营资料、人员绩效和战略信息。"),
+        "sales": ("销售AI助手 · 销售顾问", "销售AI · 销售顾问", "🤖", "我可以帮你做客户意向分析、报价方案和跟进话术。"),
+        "design": ("设计AI助手 · 方案顾问", "设计AI · 方案顾问", "🎨", "我可以分析户型、推荐风格、生成材料清单。"),
+        "promo": ("推广AI助手 · 内容增长", "推广AI · 内容增长", "✨", "我可以生成小红书、抖音、朋友圈和活动文案。"),
+        "management": ("管理AI助手 · 经营参谋", "管理AI · 经营参谋", "📊", "我可以基于管理库和公共库协助查看经营资料、人员绩效和战略信息。"),
     }
     existing_conversations = {conversation.key: conversation for conversation in db.scalars(select(Conversation)).all()}
     for key, spec in conversations.items():

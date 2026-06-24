@@ -1,19 +1,19 @@
-name: ${COMPOSE_PROJECT_NAME:-pinai}
+name: ${COMPOSE_PROJECT_NAME:-homeai}
 
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: pinai-postgres
+    container_name: homeai-postgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-pinai_ai}
-      POSTGRES_USER: ${POSTGRES_USER:-pinai}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-pinai-dev}
+      POSTGRES_DB: ${POSTGRES_DB:-homeai_platform}
+      POSTGRES_USER: ${POSTGRES_USER:-homeai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-homeai-dev}
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pinai} -d ${POSTGRES_DB:-pinai_ai}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-homeai} -d ${POSTGRES_DB:-homeai_platform}"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -23,10 +23,10 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: pinai-backend
+    container_name: homeai-backend
     working_dir: /app
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://${POSTGRES_USER:-pinai}:${POSTGRES_PASSWORD:-change-me-pinai-dev}@postgres:5432/${POSTGRES_DB:-pinai_ai}}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://${POSTGRES_USER:-homeai}:${POSTGRES_PASSWORD:-change-me-homeai-dev}@postgres:5432/${POSTGRES_DB:-homeai_platform}}
       APP_ENV: ${APP_ENV:-development}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-replace-with-a-long-random-secret}
       CORS_ORIGINS: ${CORS_ORIGINS:-["http://localhost:5173","http://localhost:5174","http://127.0.0.1:5173","http://127.0.0.1:5174"]}
@@ -73,7 +73,7 @@ services:
       context: ./frontend
       args:
         VITE_API_BASE: ${VITE_API_BASE:-/}
-    container_name: pinai-frontend
+    container_name: homeai-frontend
     ports:
       - "127.0.0.1:5173:8080"
     depends_on:

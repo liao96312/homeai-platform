@@ -15,10 +15,10 @@ WECOM_BOT_ID=your-bot-id
 WECOM_BOT_SECRET=your-bot-secret
 WECOM_LONG_CONNECTION_URL=wss://openws.work.weixin.qq.com
 WECOM_INTERNAL_TOKEN=replace-with-random-token
-PINAI_API_BASE=http://127.0.0.1:8000
+HOMEAI_API_BASE=http://127.0.0.1:8000
 ```
 
-`WECOM_INTERNAL_TOKEN` 用于 sidecar 调后端时的 `X-PinAI-Wecom-Token` 请求头。生产环境启用长连接时必须配置。
+`WECOM_INTERNAL_TOKEN` 用于 sidecar 调后端时的 `X-HomeAI-Wecom-Token` 请求头。生产环境启用长连接时必须配置。
 
 ## 启动
 

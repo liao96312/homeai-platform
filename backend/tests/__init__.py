@@ -1,1 +1,1 @@
-# backend.tests — PinAI test suite
+# backend.tests — HomeAI test suite

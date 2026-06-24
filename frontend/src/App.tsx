@@ -31,8 +31,8 @@ export default function App() {
       authStore.clear();
       setUser(null);
     };
-    window.addEventListener('pinai-auth-expired', onExpired);
-    return () => window.removeEventListener('pinai-auth-expired', onExpired);
+    window.addEventListener('homeai-auth-expired', onExpired);
+    return () => window.removeEventListener('homeai-auth-expired', onExpired);
   }, []);
 
   function handleLogin(nextUser: CurrentUser) {

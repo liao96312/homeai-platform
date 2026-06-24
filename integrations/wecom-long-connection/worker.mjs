@@ -20,7 +20,7 @@ loadProjectEnv();
 
 const botId = process.env.WECOM_BOT_ID || '';
 const secret = process.env.WECOM_BOT_SECRET || '';
-const apiBase = (process.env.PINAI_API_BASE || 'http://127.0.0.1:8000').replace(/\/$/, '');
+const apiBase = (process.env.HOMEAI_API_BASE || 'http://127.0.0.1:8000').replace(/\/$/, '');
 const internalToken = process.env.WECOM_INTERNAL_TOKEN || '';
 const healthPort = Number(process.env.WECOM_HEALTH_PORT || 8787);
 
@@ -53,7 +53,7 @@ function isBackendUrl(url) {
 
 function internalHeadersFor(url) {
   if (!internalToken || !isBackendUrl(url)) return {};
-  return { 'X-PinAI-Wecom-Token': internalToken };
+  return { 'X-HomeAI-Wecom-Token': internalToken };
 }
 
 async function callBackend(pathname, options = {}) {
@@ -68,7 +68,7 @@ async function callBackend(pathname, options = {}) {
   });
   if (!res.ok) {
     const detail = await res.text();
-    throw new Error(`PinAI backend returned ${res.status}: ${detail}`);
+    throw new Error(`HomeAI backend returned ${res.status}: ${detail}`);
   }
   return res.json();
 }
@@ -180,7 +180,7 @@ wsClient.on('authenticated', () => {
 });
 
 wsClient.on('message.text', async (frame) => {
-  const streamId = generateReqId('pinai');
+  const streamId = generateReqId('homeai');
   try {
     await wsClient.replyStream(frame, streamId, '正在处理，请稍候...', false);
     const result = await callAgent(frame);

@@ -1,4 +1,4 @@
-name: ${COMPOSE_PROJECT_NAME:-pinai}
+name: ${COMPOSE_PROJECT_NAME:-homeai}
 
 services:
   postgres:
@@ -142,7 +142,7 @@ services:
     env_file:
       - .env.production
     environment:
-      PINAI_API_BASE: http://backend:8000
+      HOMEAI_API_BASE: http://backend:8000
       WECOM_HEALTH_PORT: 8787
     security_opt:
       - no-new-privileges:true
@@ -173,7 +173,7 @@ volumes:
 
 networks:
   default:
-    name: pinai-net
+    name: homeai-net
     ipam:
       config:
         - subnet: 172.28.0.0/16

@@ -125,7 +125,7 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void }) {
             <Sparkles size={18} strokeWidth={2.5} />
           </div>
           <div>
-            <div className="logo-text">品爱AI平台</div>
+            <div className="logo-text">家装AI转型平台</div>
             <div className="logo-sub">Admin Console</div>
           </div>
         </div>

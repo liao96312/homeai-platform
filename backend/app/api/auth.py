@@ -29,7 +29,7 @@ _login_redis_client_lock = Lock()
 LOGIN_ATTEMPTS_PER_MINUTE = 5
 LOGIN_LOCKOUT_THRESHOLD = 10
 LOGIN_LOCKOUT_SECONDS = 15 * 60
-AUTH_COOKIE_NAME = "pinai_access_token"
+AUTH_COOKIE_NAME = "homeai_access_token"
 
 
 class LoginRequest(BaseModel):

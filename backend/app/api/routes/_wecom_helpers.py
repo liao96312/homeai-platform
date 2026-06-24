@@ -173,7 +173,7 @@ def assert_wecom_internal_token(request: Request) -> None:
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="WECOM_INTERNAL_TOKEN 未配置，企微内部接口已禁用",
         )
-    provided_token = request.headers.get("x-pinai-wecom-token", "").strip()
+    provided_token = request.headers.get("x-homeai-wecom-token", "").strip()
     if not provided_token or not hmac.compare_digest(provided_token, configured_token):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无效的企微长连接内部令牌")
 

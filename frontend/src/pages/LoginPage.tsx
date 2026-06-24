@@ -55,7 +55,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
         <div className="login-brand">
           <span><Sparkles size={24} strokeWidth={2.5} /></span>
           <div>
-            <h1>品爱 AI 平台</h1>
+            <h1>家装 AI 转型平台</h1>
             <p>登录后按角色加载权限与数据</p>
           </div>
         </div>

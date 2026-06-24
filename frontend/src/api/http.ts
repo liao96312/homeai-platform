@@ -32,10 +32,10 @@ export class ApiRequestError extends Error {
 
 export const authStore = {
   setSession: (user: unknown) => {
-    sessionStorage.setItem('pinai_user', JSON.stringify(user));
+    sessionStorage.setItem('homeai_user', JSON.stringify(user));
   },
   clear: () => {
-    sessionStorage.removeItem('pinai_user');
+    sessionStorage.removeItem('homeai_user');
   }
 };
 
@@ -145,7 +145,7 @@ export async function request<T = any>(path: string, options: RequestOptions = {
     authStore.clear();
     if (!authExpiredDispatched) {
       authExpiredDispatched = true;
-      window.dispatchEvent(new Event('pinai-auth-expired'));
+      window.dispatchEvent(new Event('homeai-auth-expired'));
       window.setTimeout(() => {
         authExpiredDispatched = false;
       }, 1000);
@@ -184,7 +184,7 @@ export async function streamRequest(
     });
     if (res.status === 401) {
       authStore.clear();
-      window.dispatchEvent(new Event('pinai-auth-expired'));
+      window.dispatchEvent(new Event('homeai-auth-expired'));
       throw new ApiRequestError('登录已过期，请重新登录', 401);
     }
     if (!res.ok) {

@@ -25,7 +25,7 @@ def get_current_user(
     # callers may still pass Authorization: Bearer. CSRF checks in main.py
     # distinguish these paths: Bearer requests bypass Origin validation, cookie
     # requests do not.
-    token = token or request.cookies.get("pinai_access_token")
+    token = token or request.cookies.get("homeai_access_token")
     if not token:
         raise credentials_error
     try:

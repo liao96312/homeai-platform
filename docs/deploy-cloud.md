@@ -69,14 +69,14 @@ docker compose -f docker-compose.prod.yml --env-file .env.production --profile w
 | `SSH_USER` | SSH 用户，例如 `root` 或部署用户 |
 | `SSH_KEY` | 私钥内容，建议使用专用 deploy key |
 | `SSH_PORT` | SSH 端口，未配置时使用 22 |
-| `DEPLOY_PATH` | 服务器项目目录，例如 `/opt/pinai` |
+| `DEPLOY_PATH` | 服务器项目目录，例如 `/opt/homeai` |
 | `ENABLE_WECOM` | 可选，`true` 时部署企微长连接 profile |
 
 服务器目录需提前准备：
 
 ```bash
-mkdir -p /opt/pinai
-cd /opt/pinai
+mkdir -p /opt/homeai
+cd /opt/homeai
 git clone <your-repo-url> .
 cp .env.production.example .env.production
 vim .env.production
@@ -139,7 +139,7 @@ crontab -e
 ```
 
 ```cron
-0 2 * * * cd /opt/pinai && /bin/bash scripts/backup-cloud.sh >> logs/backup.log 2>&1
+0 2 * * * cd /opt/homeai && /bin/bash scripts/backup-cloud.sh >> logs/backup.log 2>&1
 ```
 
 ## 本地 Embedding 模型
@@ -162,7 +162,7 @@ crontab -e
 ## 回滚
 
 ```bash
-cd /opt/pinai
+cd /opt/homeai
 git log --oneline -5
 git checkout <last-good-commit>
 bash scripts/deploy-cloud.sh

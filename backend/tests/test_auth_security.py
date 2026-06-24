@@ -31,7 +31,7 @@ def test_login_sets_httponly_cookie_and_cookie_auth_works():
         )
         assert login.status_code == 200
         cookie = login.headers.get("set-cookie", "")
-        assert "pinai_access_token=" in cookie
+        assert "homeai_access_token=" in cookie
         assert "HttpOnly" in cookie
 
         me = client.get("/api/auth/me")
