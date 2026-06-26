@@ -33,7 +33,16 @@ jobs:
       APP_ENV: test
       JWT_SECRET_KEY: ci-test-jwt-secret-key-at-least-32-bytes
       DEEPSEEK_API_KEY: sk-test
+      HASH_EMBEDDING_KEY: ci-test-hash-embedding-key-at-least-32-bytes
       EMBEDDING_ALLOW_DOWNLOAD: "false"
+      SEED_ADMIN_PASSWORD: ci-test-admin-password
+      SEED_SALES_PASSWORD: ci-test-sales-password
+      SEED_SALES_DIRECTOR_PASSWORD: ci-test-sales-director-password
+      SEED_DESIGNER_PASSWORD: ci-test-designer-password
+      SEED_DESIGN_MANAGER_PASSWORD: ci-test-design-manager-password
+      SEED_PROMO_PASSWORD: ci-test-promo-password
+      SEED_PROMO_MANAGER_PASSWORD: ci-test-promo-manager-password
+      SEED_MANAGEMENT_PASSWORD: ci-test-management-password
     steps:
       - name: Checkout
         uses: actions/checkout@v4

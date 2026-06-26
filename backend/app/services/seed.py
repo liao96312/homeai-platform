@@ -102,7 +102,11 @@ def seed_if_empty(db: Session) -> None:
         migrate_legacy_knowledge_bases(db)
         seed_missing_users(db)
         seed_missing_promo_templates(db)
-        if should_repair_demo_copy_on_startup():
+        if (
+            should_repair_demo_copy_on_startup()
+            or not db.scalar(select(Agent).limit(1))
+            or not db.scalar(select(Conversation).limit(1))
+        ):
             repair_demo_copy(db)
         sync_knowledge_permission_policy(db)
         migrate_legacy_knowledge_bases(db)
