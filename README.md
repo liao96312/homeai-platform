@@ -101,4 +101,4 @@ npm run check:deploy
 - [项目说明](docs/README.md)
 - [云服务器部署](docs/deploy-cloud.md)
 - [企业微信长连接](docs/wecom-long-connection.md)
-- [数据库表设计](schema.sql)
+- [数据库表设计](docs/schema.sql)

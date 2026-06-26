@@ -68,7 +68,7 @@ npm --prefix frontend run dev
 - `publish_jobs`：多平台发布任务
 - `wecom_webhook_events`：企业微信事件与回复日志
 
-完整 SQL 见 [schema.sql](../schema.sql)。
+完整 SQL 见 [schema.sql](schema.sql)。
 
 ## 知识库权限分级
 
@@ -93,6 +93,8 @@ npm --prefix frontend run dev
 - `✅ 已命中知识库`
 - `⚠ 可能相关，建议人工确认`
 - `❌ 知识库未命中`
+
+人工抽检用例见 [rag-eval-cases.md](rag-eval-cases.md)。
 
 ## 企业微信与 Agent
 

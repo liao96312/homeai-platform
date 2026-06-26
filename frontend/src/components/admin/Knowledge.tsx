@@ -221,6 +221,7 @@ export default function Knowledge({ data, role, setRole, perms, setToast, reload
                   <button className="btn btn-default" disabled={busyKb === kb.key} onClick={() => loadDocs(kb.key)}>{pollingKbKeys[kb.key] ? '刷新中' : '文档'}</button>
                   <button className="btn btn-primary" disabled={busyKb === kb.key} onClick={() => search(kb.key)}>{busyKb === kb.key ? '处理中...' : '检索'}</button>
                   {isAdmin && !kb.isSystem && <button className="btn btn-danger" disabled={busyKb === kb.key} onClick={() => deleteKb(kb)}>删除</button>}
+                  <small className="kb-relevance">最大 100MB，上传后后台解析</small>
                 </div>
               )}
               {docs.length > 0 && <div className="kb-doc-list"><div className="kb-doc-title">已上传文档</div>{docs.map((doc) => {

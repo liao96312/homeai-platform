@@ -139,14 +139,15 @@ def raw_payload_message_id(raw_payload: dict | None) -> str:
     return ""
 
 
-def is_duplicate_wecom_callback(db: Session, payload: dict, user_text: str) -> bool:
+def is_duplicate_wecom_event(db: Session, payload: dict, user_text: str, *, source: str) -> bool:
     message_id = payload.get("message_id") or raw_payload_message_id(payload.get("raw"))
     from_user = payload.get("from_user", "")
+    normalized_source = "callback" if source == "callback" else source
     since = datetime.now(timezone.utc) - timedelta(minutes=10)
     recent_events = db.scalars(
         select(WecomWebhookEvent)
         .where(
-            WecomWebhookEvent.source == "callback",
+            WecomWebhookEvent.source == normalized_source,
             WecomWebhookEvent.from_user == from_user,
             WecomWebhookEvent.created_at >= since,
         )
@@ -154,11 +155,17 @@ def is_duplicate_wecom_callback(db: Session, payload: dict, user_text: str) -> b
         .limit(50)  # 10分钟内同一用户最多检查最近50条，避免无效查询
     ).all()
     for event in recent_events:
+        if getattr(event, "source", normalized_source) != normalized_source:
+            continue
         if message_id and raw_payload_message_id(event.raw_payload) == str(message_id):
             return True
         if not message_id and event.content == user_text and event.msg_type == payload.get("msg_type", ""):
             return True
     return False
+
+
+def is_duplicate_wecom_callback(db: Session, payload: dict, user_text: str) -> bool:
+    return is_duplicate_wecom_event(db, payload, user_text, source="callback")
 
 
 def assert_wecom_internal_token(request: Request) -> None:
@@ -183,7 +190,7 @@ def handle_wecom_agent_event(db: Session, payload: dict, *, source: str, send_ro
     conversation_key = settings.wecom_default_conversation_key
     user_text = payload.get("content") or ""
     normalized_source = "callback" if source == "callback" else source
-    if is_duplicate_wecom_callback(db, payload, user_text) and normalized_source == "callback":
+    if is_duplicate_wecom_event(db, payload, user_text, source=normalized_source):
         return {"status": "duplicate", "reply": "", "conversationKey": conversation_key, "run": {}, "dispatch": {}, "robot": {}}
 
     reply = ""

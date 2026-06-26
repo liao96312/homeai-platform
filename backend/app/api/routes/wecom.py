@@ -55,7 +55,7 @@ async def receive_wecom_long_connection_message(
         "raw": req.raw or {},
     }
     result = handle_wecom_agent_event(db, payload, source="long_connection", send_robot=False)
-    return {"ok": result["status"] in {"replied", "ignored"}, **result}
+    return {"ok": result["status"] in {"replied", "ignored", "duplicate"}, **result}
 
 
 @wecom_router.get("/callback", response_class=PlainTextResponse)

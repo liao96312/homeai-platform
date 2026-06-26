@@ -99,7 +99,7 @@ bash scripts/check-production-env.sh .env.production
 ```bash
 docker compose -f docker-compose.prod.yml ps
 curl http://127.0.0.1/health
-curl http://127.0.0.1/health/detail
+# /health/detail 需要管理员登录令牌；日常探活用 /health。
 ```
 
 ## 数据持久化
