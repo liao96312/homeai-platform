@@ -21,9 +21,9 @@ def set_test_admin_password(password: str = "change-me-admin") -> None:
 
 
 def test_login_sets_httponly_cookie_and_cookie_auth_works():
-    set_test_admin_password()
-
     with TestClient(app) as client:
+        set_test_admin_password()
+
         login = client.post(
             "/api/auth/login",
             headers={"Origin": "http://localhost:5173"},
