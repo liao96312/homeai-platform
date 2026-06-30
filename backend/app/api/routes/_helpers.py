@@ -11,7 +11,7 @@ from backend.app.api.shared import ROLE_PERMISSION_ALIASES
 from backend.app.models.domain import (
     Agent, AgentRun, BusinessArtifact, OperationLog, PromoTemplate, PublishJob, RagQueryLog, SystemConfig, User, WecomWebhookEvent,
 )
-from backend.app.services.publishing import build_multipost_task, publish_via_multipost, resolve_platform_code
+from backend.app.services.publishing import publish_via_multipost
 
 CONFIG_CACHE_TTL_SECONDS = 10
 _CONFIG_ENABLED_CACHE: dict[str, tuple[float, bool]] = {}
@@ -128,27 +128,17 @@ def persist_publish_job(
     title: str,
     content: str,
     tags: list[str],
-    scheduled_at: datetime | None = None,
+    images: list[str] | None = None,
+    videos: list[str] | None = None,
 ) -> PublishJob:
-    normalized_schedule = normalize_datetime(scheduled_at) if scheduled_at else None
-    if normalized_schedule and normalized_schedule > datetime.now(timezone.utc):
-        platform_code = resolve_platform_code(platform)
-        request_payload = build_multipost_task(title, content, platform_code, tags)
-        request_payload["scheduledAt"] = normalized_schedule.isoformat()
-        provider = "multipost"
-        status_text = "scheduled"
-        external_task_id = ""
-        response_payload = {}
-        error_text = ""
-    else:
-        result = publish_via_multipost(title=title, content=content, platform_label=platform, tags=tags)
-        provider = result.provider
-        platform_code = result.platform_code
-        status_text = result.status
-        external_task_id = result.external_task_id
-        request_payload = result.request_payload or {}
-        response_payload = result.response_payload or {}
-        error_text = result.error
+    result = publish_via_multipost(title=title, content=content, platform_label=platform, tags=tags, images=images, videos=videos)
+    provider = result.provider
+    platform_code = result.platform_code
+    status_text = result.status
+    external_task_id = result.external_task_id
+    request_payload = result.request_payload or {}
+    response_payload = result.response_payload or {}
+    error_text = result.error
     job = PublishJob(
         artifact_id=artifact.id if artifact else None,
         user_id=user.id,
@@ -162,7 +152,7 @@ def persist_publish_job(
         request_json=request_payload,
         response_json=response_payload,
         error=error_text,
-        scheduled_at=normalized_schedule,
+        scheduled_at=None,
         created_at_label="刚刚",
         updated_at_label="刚刚",
     )

@@ -579,7 +579,8 @@ def repair_demo_copy(db: Session) -> None:
     log_text = "\n".join(
         f"{item.title} {item.detail} {item.time_label}" for item in db.scalars(select(OperationLog).limit(80)).all()
     )
-    if any(marker in log_text for marker in ("鍙", "鏂", "鐭", "绯", "鎺", "璁", "閿", "瀹", "馃", "鈿", "鉁", "鈻")):
+    mojibake_markers = ("\u9359", "\u93c2", "\u942d", "\u7eef", "\u93ba", "\u7481", "\u95bf", "\u7039", "\u9983", "\u923f", "\u9241", "\u923b")
+    if any(marker in log_text for marker in mojibake_markers):
         db.execute(delete(OperationLog))
         db.add_all(
             [

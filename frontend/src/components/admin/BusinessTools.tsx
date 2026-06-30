@@ -20,8 +20,8 @@ export default function BusinessTools({ currentRole, setToast }) {
   const [promoResult, setPromoResult] = useState<any | null>(null);
   const [promoTemplates, setPromoTemplates] = useState<any[]>([]);
   const [promoTemplateId, setPromoTemplateId] = useState('');
-  const [promoSchedule, setPromoSchedule] = useState('');
   const [video, setVideo] = useState({
+    platform: '抖音',
     subject: '新中式全屋定制产品宣传短视频',
     script: ''
   });
@@ -212,14 +212,12 @@ export default function BusinessTools({ currentRole, setToast }) {
         content,
         platforms: [platform],
         source: 'admin-tools',
-        tags: promoResult.tags || [],
-        scheduled_at: promoSchedule ? new Date(promoSchedule).toISOString() : null
+        tags: promoResult.tags || []
       });
       const status = res.jobs?.[0]?.status;
       setPromoResult((prev) => ({ ...prev, publishJobs: res.jobs || [] }));
       setToast?.(status === 'needs_config' ? '发布任务已创建，配置 MultiPost 后可真实发布' : '发布任务已提交');
       if (res.requiresReview) setToast?.('发布前需要人工确认，已进入待审核');
-      if (status === 'scheduled') setToast?.('发布任务已定时');
       await loadArtifacts(artifactFilter);
     } catch (err) {
       setToast?.(err.message);
@@ -255,6 +253,33 @@ export default function BusinessTools({ currentRole, setToast }) {
       const res = await api.getVideoDelivery(videoResult.taskId);
       setVideoTaskResult(res);
       setToast?.('视频任务状态已刷新');
+    } catch (err) {
+      setToast?.(err.message);
+    } finally {
+      setBusy('');
+    }
+  }
+
+  async function publishVideo() {
+    const fileUrl = videoTaskResult?.selectedFile?.downloadUrl;
+    if (!fileUrl) {
+      setToast?.('请先刷新到可下载的视频文件');
+      return;
+    }
+    setBusy('video-publish');
+    try {
+      const res = await api.createPublishJobs({
+        artifact_id: videoResult?.artifactId,
+        title: video.subject,
+        content: video.script || video.subject,
+        platforms: [video.platform || '抖音'],
+        source: 'video-generation',
+        videos: [fileUrl]
+      });
+      setVideoTaskResult((prev) => ({ ...prev, publishJobs: res.jobs || [] }));
+      const status = res.jobs?.[0]?.status;
+      setToast?.(status === 'needs_config' ? '视频发布任务已创建，配置 MultiPost 后可真实发布' : '视频发布任务已提交');
+      await loadArtifacts(artifactFilter);
     } catch (err) {
       setToast?.(err.message);
     } finally {
@@ -308,8 +333,6 @@ export default function BusinessTools({ currentRole, setToast }) {
         promoTemplates={promoTemplates}
         promoTemplateId={promoTemplateId}
         applyPromoTemplate={applyPromoTemplate}
-        promoSchedule={promoSchedule}
-        setPromoSchedule={setPromoSchedule}
         runPromo={runPromo}
         promoResult={promoResult}
         copyPromo={copyPromo}
@@ -325,6 +348,7 @@ export default function BusinessTools({ currentRole, setToast }) {
         videoResult={videoResult}
         videoTaskResult={videoTaskResult}
         refreshVideoTask={refreshVideoTask}
+        publishVideo={publishVideo}
         busy={busy}
       />
 

@@ -8,8 +8,6 @@ export default function PromoCopyCard({
   promoTemplates,
   promoTemplateId,
   applyPromoTemplate,
-  promoSchedule,
-  setPromoSchedule,
   runPromo,
   promoResult,
   copyPromo,
@@ -36,7 +34,6 @@ export default function PromoCopyCard({
         <label className="wide">目标人群<input value={promo.audience} disabled={!canPromo} onChange={(e) => setPromo({ ...promo, audience: e.target.value })} /></label>
         <label className="wide">卖点<input value={promo.selling_points} disabled={!canPromo} onChange={(e) => setPromo({ ...promo, selling_points: e.target.value })} /></label>
         <label className="wide">语气<input value={promo.tone} disabled={!canPromo} onChange={(e) => setPromo({ ...promo, tone: e.target.value })} /></label>
-        <label className="wide">定时发布<input type="datetime-local" value={promoSchedule} disabled={!canPromo} onChange={(e) => setPromoSchedule(e.target.value)} /></label>
       </div>
       <button className="btn btn-primary" disabled={!canPromo || busy === 'promo'} type="submit">
         {busy === 'promo' ? '生成中...' : '生成文案'}

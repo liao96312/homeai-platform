@@ -157,6 +157,7 @@ crontab -e
 
 - 单独部署 MoneyPrinterTurbo 容器或服务。
 - 设置 `MONEY_PRINTER_API_BASE_URL=http://moneyprinter:8080/api/v1` 或真实内网地址。
+- 如企微上传本地素材剪辑，按实际素材大小调整 `VIDEO_MATERIAL_MAX_UPLOAD_BYTES`，默认 300MB。
 - 确认生成的视频文件能通过 MoneyPrinterTurbo API 返回为 backend 可下载的 URL，或将 `MONEY_PRINTER_PROJECT_DIR` 挂载到 backend 可访问路径，否则企微无法自动发送本地视频产物。
 
 ## 回滚

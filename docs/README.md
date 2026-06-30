@@ -96,6 +96,8 @@ npm --prefix frontend run dev
 
 人工抽检用例见 [rag-eval-cases.md](rag-eval-cases.md)。
 
+视频生成和一键发布使用说明见 [video-publish-usage.md](video-publish-usage.md)。
+
 ## 企业微信与 Agent
 
 企业微信 webhook 和长连接 sidecar 会把消息送入统一 Agent Runtime。Agent 会先做意图判断，再路由到聊天、知识库问答、销售工具、设计工具、推广工具、视频生成或发布任务。所有关键步骤都会写入运行记录，便于排查和演示。

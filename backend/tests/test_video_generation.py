@@ -1,5 +1,41 @@
 from backend.app.core.config import settings
-from backend.app.services.video_generation import _task_url_to_local_path
+from backend.app.services.video_generation import _task_url_to_local_path, cleanup_money_printer_video_materials, money_printer_payload
+
+
+def test_money_printer_payload_uses_local_materials():
+    payload = money_printer_payload("新中式宣传片", materials=["living-room.mp4", " cabinet.png "])
+
+    assert payload["video_source"] == "local"
+    assert payload["video_materials"] == [
+        {"provider": "local", "url": "living-room.mp4", "duration": 0},
+        {"provider": "local", "url": "cabinet.png", "duration": 0},
+    ]
+
+
+def test_cleanup_money_printer_video_materials_deletes_local_files(monkeypatch, tmp_path):
+    monkeypatch.setattr(settings, "money_printer_project_dir", str(tmp_path))
+    local_videos = tmp_path / "storage" / "local_videos"
+    local_videos.mkdir(parents=True)
+    material = local_videos / "clip.mp4"
+    material.write_bytes(b"video")
+
+    result = cleanup_money_printer_video_materials(["clip.mp4"])
+
+    assert result["deleted"] == ["clip.mp4"]
+    assert not material.exists()
+
+
+def test_cleanup_money_printer_video_materials_uses_filename_only(monkeypatch, tmp_path):
+    monkeypatch.setattr(settings, "money_printer_project_dir", str(tmp_path))
+    local_videos = tmp_path / "storage" / "local_videos"
+    local_videos.mkdir(parents=True)
+    outside = tmp_path / "outside.mp4"
+    outside.write_bytes(b"keep")
+
+    result = cleanup_money_printer_video_materials(["../outside.mp4"])
+
+    assert result["deleted"] == []
+    assert outside.exists()
 
 
 def test_task_url_to_local_path_rejects_task_directory(monkeypatch):

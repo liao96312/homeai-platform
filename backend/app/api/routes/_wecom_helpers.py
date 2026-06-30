@@ -22,7 +22,14 @@ from backend.app.services.wecom import send_robot_message
 from backend.app.api.routes._helpers import assert_agent_online, config_enabled, require_roles
 
 
-def dispatch_agent_message(text: str, user: User, db: Session, user_id: str | None = None) -> dict:
+def dispatch_agent_message(
+    text: str,
+    user: User,
+    db: Session,
+    user_id: str | None = None,
+    video_materials: list[str] | None = None,
+    force_video: bool = False,
+) -> dict:
     text = text.strip()
     if not text:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="消息不能为空")
@@ -34,10 +41,10 @@ def dispatch_agent_message(text: str, user: User, db: Session, user_id: str | No
         from backend.app.api.routes.business import promo_copy
         result = promo_copy(PromoCopyRequest(topic=text), user=user, db=db)
         return {"route": "promo", "tool": "promo_copy", "intent": intent, "result": result}
-    if tool == "video_generation":
+    if force_video or video_materials or tool == "video_generation":
         require_roles(user, {"promo"})
         from backend.app.api.routes.video import generate_video
-        result = generate_video(VideoGenerationRequest(subject=text), user=user, db=db)
+        result = generate_video(VideoGenerationRequest(subject=text, script=text, materials=video_materials or []), user=user, db=db)
         return {"route": "video", "tool": "video_generation", "intent": intent, "result": result}
     if tool == "requirement_card":
         require_roles(user, {"designer"})
@@ -189,6 +196,8 @@ def handle_wecom_agent_event(db: Session, payload: dict, *, source: str, send_ro
     inbound_conversation_id = payload.get("conversation_id") or ""
     conversation_key = settings.wecom_default_conversation_key
     user_text = payload.get("content") or ""
+    force_video = bool(payload.get("force_video"))
+    video_materials = payload.get("video_materials") or []
     normalized_source = "callback" if source == "callback" else source
     if is_duplicate_wecom_event(db, payload, user_text, source=normalized_source):
         return {"status": "duplicate", "reply": "", "conversationKey": conversation_key, "run": {}, "dispatch": {}, "robot": {}}
@@ -209,7 +218,14 @@ def handle_wecom_agent_event(db: Session, payload: dict, *, source: str, send_ro
                 db,
                 user=agent_user,
                 text=user_text,
-                executor=dispatch_agent_message,
+                executor=lambda text, user, db, user_id=None: dispatch_agent_message(
+                    text,
+                    user,
+                    db,
+                    user_id,
+                    video_materials=video_materials,
+                    force_video=force_video,
+                ),
                 reply_formatter=format_agent_dispatch_reply,
                 channel="wecom",
                 conversation_id=inbound_conversation_id or sender_id,
@@ -219,6 +235,8 @@ def handle_wecom_agent_event(db: Session, payload: dict, *, source: str, send_ro
                     "fromUser": sender_id,
                     "msgType": payload.get("msg_type", ""),
                     "messageId": payload.get("message_id", ""),
+                    "forceVideo": force_video,
+                    "videoMaterials": video_materials,
                 },
                 max_attempts=2,
             )

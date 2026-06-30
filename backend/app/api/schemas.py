@@ -20,6 +20,8 @@ class WecomLongConnectionInboundRequest(BaseModel):
     from_user: str = ""
     conversation_id: str = ""
     message_id: str = ""
+    force_video: bool = False
+    video_materials: list[str] = Field(default_factory=list)
     raw: dict | None = None
 
 
@@ -72,6 +74,11 @@ class PromoCopyRequest(BaseModel):
 class VideoGenerationRequest(BaseModel):
     subject: str
     script: str = ""
+    materials: list[str] = Field(default_factory=list)
+
+
+class WecomVideoMaterialCleanupRequest(BaseModel):
+    files: list[str] = Field(default_factory=list)
 
 
 class PromoTemplateRequest(BaseModel):
@@ -154,6 +161,8 @@ class PublishRequest(BaseModel):
     platforms: list[str]
     source: str = "manual"
     tags: list[str] = Field(default_factory=list)
+    images: list[str] = Field(default_factory=list)
+    videos: list[str] = Field(default_factory=list)
     scheduled_at: datetime | None = None
 
 
@@ -164,6 +173,8 @@ class PublishJobCreateRequest(BaseModel):
     platforms: list[str]
     source: str = "manual"
     tags: list[str] = Field(default_factory=list)
+    images: list[str] = Field(default_factory=list)
+    videos: list[str] = Field(default_factory=list)
     scheduled_at: datetime | None = None
 
 

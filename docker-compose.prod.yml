@@ -1,10 +1,8 @@
-name: ${COMPOSE_PROJECT_NAME:-homeai}
-
 services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
-    mem_limit: ${POSTGRES_MEM_LIMIT:-1g}
+    mem_limit: ${POSTGRES_MEM_LIMIT:-1073741824}
     cpus: ${POSTGRES_CPUS:-1.0}
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -26,7 +24,7 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    mem_limit: ${REDIS_MEM_LIMIT:-256m}
+    mem_limit: ${REDIS_MEM_LIMIT:-268435456}
     cpus: ${REDIS_CPUS:-0.5}
     command: ["sh", "-c", "redis-server --appendonly yes --requirepass \"$${REDIS_PASSWORD}\""]
     environment:
@@ -49,7 +47,7 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     restart: unless-stopped
-    mem_limit: ${BACKEND_MEM_LIMIT:-3g}
+    mem_limit: ${BACKEND_MEM_LIMIT:-3221225472}
     cpus: ${BACKEND_CPUS:-2.0}
     env_file:
       - .env.production
@@ -89,7 +87,7 @@ services:
       args:
         VITE_API_BASE: ${VITE_API_BASE:-/}
     restart: unless-stopped
-    mem_limit: ${FRONTEND_MEM_LIMIT:-256m}
+    mem_limit: ${FRONTEND_MEM_LIMIT:-268435456}
     cpus: ${FRONTEND_CPUS:-0.5}
     expose:
       - "8080"
@@ -108,7 +106,7 @@ services:
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
-    mem_limit: ${CADDY_MEM_LIMIT:-256m}
+    mem_limit: ${CADDY_MEM_LIMIT:-268435456}
     cpus: ${CADDY_CPUS:-0.5}
     environment:
       CADDY_DOMAIN: ${CADDY_DOMAIN}
@@ -136,7 +134,7 @@ services:
     build:
       context: ./integrations/wecom-long-connection
     restart: unless-stopped
-    mem_limit: ${WECOM_MEM_LIMIT:-256m}
+    mem_limit: ${WECOM_MEM_LIMIT:-805306368}
     cpus: ${WECOM_CPUS:-0.5}
     profiles: ["wecom"]
     env_file:

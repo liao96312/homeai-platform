@@ -1,6 +1,7 @@
 import React from 'react';
+import { publishStatusLabel } from './labels';
 
-export default function VideoTaskPreview({ videoResult, videoTaskResult, video, refreshVideoTask, busy }) {
+export default function VideoTaskPreview({ videoResult, videoTaskResult, video, refreshVideoTask, publishVideo, busy }) {
   if (!videoResult) return null;
   const selectedFile = videoTaskResult?.selectedFile;
   const files = videoTaskResult?.files || [];
@@ -32,9 +33,23 @@ export default function VideoTaskPreview({ videoResult, videoTaskResult, video, 
           ))}
         </div>
       )}
+      {videoTaskResult?.publishJobs?.length > 0 && (
+        <div className="publish-result compact">
+          {videoTaskResult.publishJobs.map((job) => (
+            <div className={'publish-job publish-' + job.status} key={job.id}>
+              <b>{job.platform}</b>
+              <span>{publishStatusLabel(job.status)}</span>
+              {job.error && <small>{job.error}</small>}
+            </div>
+          ))}
+        </div>
+      )}
       <div className="promo-preview-actions">
         <button className="btn btn-default" type="button" disabled={!videoResult.taskId || busy === 'video-status'} onClick={refreshVideoTask}>
           {busy === 'video-status' ? '查询中...' : '刷新任务状态'}
+        </button>
+        <button className="btn btn-primary" type="button" disabled={!selectedFile?.downloadUrl || busy === 'video-publish'} onClick={publishVideo}>
+          {busy === 'video-publish' ? '发布中...' : '创建视频发布任务'}
         </button>
       </div>
       {videoTaskResult && (

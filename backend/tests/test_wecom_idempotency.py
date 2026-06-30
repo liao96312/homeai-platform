@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from backend.app.api.routes._wecom_helpers import is_duplicate_wecom_callback, is_duplicate_wecom_event
+from backend.app.api.routes._wecom_helpers import dispatch_agent_message, is_duplicate_wecom_callback, is_duplicate_wecom_event
 from backend.app.core.config import settings
 from backend.app.services.wecom import WecomCryptoError, normalize_json_payload, verify_signature
 
@@ -117,3 +117,22 @@ def test_wecom_signature_requires_configured_token(monkeypatch):
 
     with pytest.raises(WecomCryptoError):
         verify_signature(settings.wecom_callback_token, "sig", "ts", "nonce", "encrypted")
+
+
+def test_force_video_dispatch_bypasses_intent_classifier(monkeypatch):
+    from backend.app.api.routes import video as video_routes
+
+    captured = {}
+
+    def fake_generate_video(req, user, db):
+        captured["req"] = req
+        return {"taskId": "task-1"}
+
+    monkeypatch.setattr(video_routes, "generate_video", fake_generate_video)
+    user = SimpleNamespace(id=1, role=SimpleNamespace(key="promo"))
+
+    result = dispatch_agent_message("随便剪一下", user=user, db=SimpleNamespace(), force_video=True)
+
+    assert result["route"] == "video"
+    assert captured["req"].materials == []
+    assert captured["req"].script == "随便剪一下"

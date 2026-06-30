@@ -113,6 +113,7 @@ class Settings(BaseSettings):
     # (D:\workplace\...) when running in a Linux container. Configure
     # MONEY_PRINTER_PROJECT_DIR explicitly in your env when video generation is used.
     money_printer_project_dir: str = ""
+    video_material_max_upload_bytes: int = 300 * 1024 * 1024
     video_generation_default_source: str = "pexels"
     video_generation_default_aspect: str = "9:16"
     video_generation_default_clip_duration: int = 5

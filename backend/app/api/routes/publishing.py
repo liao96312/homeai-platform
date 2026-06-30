@@ -27,6 +27,8 @@ def create_publish_jobs(req: PublishRequest, user: User = Depends(get_current_us
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="发布正文不能为空")
     if not platforms:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="至少选择一个发布平台")
+    if req.scheduled_at:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="定时发布暂未启用，请直接创建即时发布任务")
 
     artifact = get_owned_artifact_or_404(db, req.artifact_id, user) if req.artifact_id else None
     if not artifact:
@@ -35,7 +37,7 @@ def create_publish_jobs(req: PublishRequest, user: User = Depends(get_current_us
             "promo_copy",
             f"发布任务 · {title}",
             content,
-            {"platforms": platforms, "title": title, "body": content, "source": req.source},
+            {"platforms": platforms, "title": title, "body": content, "source": req.source, "images": req.images, "videos": req.videos},
             user,
             "confirmed",
         )
@@ -48,7 +50,6 @@ def create_publish_jobs(req: PublishRequest, user: User = Depends(get_current_us
                 "platforms": platforms,
                 "title": title,
                 "source": req.source,
-                "scheduledAt": req.scheduled_at.isoformat() if req.scheduled_at else "",
             },
         }
         add_log(db, "🛂", "发布等待人工确认", f"{title} / {', '.join(platforms)} · 操作人：{user.full_name}", "orange")
@@ -61,7 +62,17 @@ def create_publish_jobs(req: PublishRequest, user: User = Depends(get_current_us
             "message": "发布前需要人工确认，请先确认产物后再创建发布任务",
         }
     jobs = [
-        persist_publish_job(db, artifact=artifact, user=user, platform=platform, title=title, content=content, tags=req.tags, scheduled_at=req.scheduled_at)
+        persist_publish_job(
+            db,
+            artifact=artifact,
+            user=user,
+            platform=platform,
+            title=title,
+            content=content,
+            tags=req.tags,
+            images=req.images,
+            videos=req.videos,
+        )
         for platform in platforms
     ]
     statuses = {job.status for job in jobs}
@@ -87,7 +98,7 @@ def create_publish_jobs(req: PublishRequest, user: User = Depends(get_current_us
         "artifact": artifact_payload(artifact),
         "jobs": [publish_job_payload(job) for job in jobs],
         "requiresReview": False,
-        "scheduled": bool(req.scheduled_at),
+        "scheduled": False,
     }
 
 

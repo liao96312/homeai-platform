@@ -62,7 +62,14 @@ def resolve_platform_code(label: str) -> str:
     return clean if clean.startswith("DYNAMIC_") else "DYNAMIC_REDNOTE"
 
 
-def build_multipost_task(title: str, content: str, platform_code: str, tags: list[str] | None = None) -> dict:
+def build_multipost_task(
+    title: str,
+    content: str,
+    platform_code: str,
+    tags: list[str] | None = None,
+    images: list[str] | None = None,
+    videos: list[str] | None = None,
+) -> dict:
     return {
         "targetClientId": settings.multipost_target_client_id,
         "taskType": "PUBLISH_POST",
@@ -71,8 +78,8 @@ def build_multipost_task(title: str, content: str, platform_code: str, tags: lis
             "data": {
                 "title": title,
                 "content": content,
-                "images": [],
-                "videos": [],
+                "images": images or [],
+                "videos": videos or [],
                 "tags": tags or [],
             },
             "isAutoPublish": settings.multipost_auto_publish,
@@ -81,9 +88,16 @@ def build_multipost_task(title: str, content: str, platform_code: str, tags: lis
     }
 
 
-def publish_via_multipost(title: str, content: str, platform_label: str, tags: list[str] | None = None) -> PublishResult:
+def publish_via_multipost(
+    title: str,
+    content: str,
+    platform_label: str,
+    tags: list[str] | None = None,
+    images: list[str] | None = None,
+    videos: list[str] | None = None,
+) -> PublishResult:
     platform_code = resolve_platform_code(platform_label)
-    payload = build_multipost_task(title, content, platform_code, tags)
+    payload = build_multipost_task(title, content, platform_code, tags, images, videos)
     if not settings.multipost_api_key or not settings.multipost_target_client_id:
         return PublishResult(
             status="needs_config",

@@ -9,6 +9,7 @@ export default function VideoGenerationCard({
   videoResult,
   videoTaskResult,
   refreshVideoTask,
+  publishVideo,
   busy
 }) {
   return (
@@ -18,6 +19,9 @@ export default function VideoGenerationCard({
         <span className="tag tag-purple">MoneyPrinterTurbo</span>
       </div>
       <div className="tool-form-grid">
+        <label>发布平台
+          <input value={video.platform} disabled={!canPromo} onChange={(e) => setVideo({ ...video, platform: e.target.value })} />
+        </label>
         <label className="wide">视频主题
           <input value={video.subject} disabled={!canPromo} onChange={(e) => setVideo({ ...video, subject: e.target.value })} />
         </label>
@@ -33,6 +37,7 @@ export default function VideoGenerationCard({
         videoTaskResult={videoTaskResult}
         video={video}
         refreshVideoTask={refreshVideoTask}
+        publishVideo={publishVideo}
         busy={busy}
       />
     </form>

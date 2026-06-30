@@ -267,6 +267,9 @@ def request_body_size_limit(request: Request) -> int:
     ):
         multipart_overhead = 10 * 1024 * 1024
         return int(settings.knowledge_max_upload_bytes or 0) + multipart_overhead
+    if request.method.upper() == "POST" and path == "/api/wecom/video-materials":
+        multipart_overhead = 10 * 1024 * 1024
+        return int(settings.video_material_max_upload_bytes or 0) + multipart_overhead
     return int(settings.max_request_body_bytes or 0)
 
 
