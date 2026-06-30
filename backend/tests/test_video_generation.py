@@ -1,5 +1,12 @@
 from backend.app.core.config import settings
-from backend.app.services.video_generation import _task_url_to_local_path, cleanup_money_printer_video_materials, money_printer_payload
+import httpx
+
+from backend.app.services.video_generation import (
+    _task_url_to_local_path,
+    cleanup_money_printer_video_materials,
+    money_printer_health,
+    money_printer_payload,
+)
 
 
 def test_money_printer_payload_uses_local_materials():
@@ -36,6 +43,21 @@ def test_cleanup_money_printer_video_materials_uses_filename_only(monkeypatch, t
 
     assert result["deleted"] == []
     assert outside.exists()
+
+
+def test_money_printer_health_counts_local_materials(monkeypatch):
+    client_factory = httpx.Client
+
+    def handler(request):
+        assert str(request.url).endswith("/video_materials")
+        return httpx.Response(200, json={"data": {"files": [{"file": "a.mp4"}, {"file": "b.png"}]}})
+
+    monkeypatch.setattr(httpx, "Client", lambda **_: client_factory(transport=httpx.MockTransport(handler)))
+
+    result = money_printer_health()
+
+    assert result["ok"] is True
+    assert result["localMaterials"] == 2
 
 
 def test_task_url_to_local_path_rejects_task_directory(monkeypatch):

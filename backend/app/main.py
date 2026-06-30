@@ -30,6 +30,7 @@ from backend.app.services.llm import get_llm_provider
 from backend.app.services.memory import memory_health
 from backend.app.services.runtime_metrics import record_runtime_failure, runtime_metrics_snapshot
 from backend.app.services.seed import seed_if_empty
+from backend.app.services.video_generation import money_printer_health
 
 
 logging.basicConfig(
@@ -387,6 +388,7 @@ def health_detail(_: object = Depends(require_admin)):
         "vectorStore": {"ok": False, "provider": "chroma", "persistDir": settings.chroma_persist_dir},
         "llm": {"ok": False, "provider": settings.ai_provider, "model": settings.deepseek_default_model},
         "embedding": {"ok": False, "provider": settings.embedding_provider, "model": settings.embedding_model, "cacheDir": settings.embedding_cache_dir},
+        "moneyPrinter": {"ok": False, "provider": "MoneyPrinterTurbo", "apiBase": settings.money_printer_api_base_url},
         "memory": memory_health(),
         "runtimeMetrics": {"ok": True, **runtime_metrics_snapshot()},
     }
@@ -411,6 +413,7 @@ def health_detail(_: object = Depends(require_admin)):
 
     # ⚠️ 注意：embedding 首次加载模型可能耗时数秒，健康检查会等待加载完成
     checks["embedding"] = check_local_embedding_ready()
+    checks["moneyPrinter"] = money_printer_health()
     status_value = "ok" if all(item.get("ok") for item in checks.values()) else "degraded"
     return {"status": status_value, "checks": checks}
 

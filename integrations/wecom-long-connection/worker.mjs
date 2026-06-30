@@ -131,6 +131,21 @@ function formatBytes(bytes) {
   return `${bytes}B`;
 }
 
+function clipSessionStatusText(session) {
+  const modeText = session.mode === 'with_materials' ? '有素材剪辑' : session.mode === 'without_materials' ? '无素材剪辑' : '未选择';
+  const materialCount = session.materials.length;
+  const remainingCount = clipMaxMaterials > 0 ? Math.max(0, clipMaxMaterials - materialCount) : '不限';
+  const totalBytes = session.materialBytes || 0;
+  const remainingBytes = clipMaxTotalBytes > 0 ? formatBytes(Math.max(0, clipMaxTotalBytes - totalBytes)) : '不限';
+  return [
+    `当前剪辑模式：${modeText}`,
+    `已收素材：${materialCount} 个 / ${formatBytes(totalBytes)}`,
+    `剩余额度：${remainingCount} 个 / ${remainingBytes}`,
+    materialCount ? `素材：${session.materials.join('、')}` : '素材：暂无',
+    '发送剪辑要求即可开始生成；发送“取消剪辑”可清空。'
+  ].join('\n');
+}
+
 async function sendClipModeCard(frame) {
   const chatid = frameConversationId(frame);
   if (!chatid) return;
@@ -306,6 +321,10 @@ wsClient.on('message.text', async (frame) => {
     if (['取消剪辑', '重置剪辑'].includes(text)) {
       await clearSession(frame);
       await wsClient.replyStream(frame, streamId, '已取消当前剪辑任务。', true);
+      return;
+    }
+    if (['当前素材', '素材状态', '查看素材'].includes(text)) {
+      await wsClient.replyStream(frame, streamId, clipSessionStatusText(sessionFor(frame)), true);
       return;
     }
     if (['剪辑', '视频剪辑', '做视频', '生成视频'].includes(text)) {

@@ -156,6 +156,19 @@ def cleanup_money_printer_video_materials(files: list[str]) -> dict[str, Any]:
     return {"deleted": deleted, "skipped": skipped}
 
 
+def money_printer_health() -> dict[str, Any]:
+    base_url = settings.money_printer_api_base_url.rstrip("/")
+    try:
+        with httpx.Client(timeout=3) as client:
+            response = client.get(f"{base_url}/video_materials")
+            response.raise_for_status()
+            data = response.json()
+    except Exception as exc:
+        return {"ok": False, "provider": "MoneyPrinterTurbo", "apiBase": base_url, "error": type(exc).__name__}
+    files = ((data.get("data") or {}).get("files") or []) if isinstance(data, dict) else []
+    return {"ok": True, "provider": "MoneyPrinterTurbo", "apiBase": base_url, "localMaterials": len(files)}
+
+
 def get_money_printer_task(task_id: str) -> dict[str, Any]:
     if not task_id.strip():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="任务 ID 不能为空")

@@ -100,6 +100,7 @@ bash scripts/check-production-env.sh .env.production
 docker compose -f docker-compose.prod.yml ps
 curl http://127.0.0.1/health
 # /health/detail 需要管理员登录令牌；日常探活用 /health。
+# /health/detail 会检查数据库、向量库、LLM、embedding、MoneyPrinterTurbo 等依赖。
 ```
 
 ## 数据持久化
