@@ -33,6 +33,24 @@ AGENT_INTENT_CATEGORIES = {
         "strong": ["客户", "线索", "预算", "量房", "到店", "报价", "意向", "成交", "跟进"],
         "weak": ["面积", "电话", "城市", "本月", "近期"],
     },
+    "trade_inquiry": {
+        "route": "sales",
+        "tool": "trade_inquiry",
+        "strong": ["外贸", "询盘", "enquiry", "inquiry", "RFQ", "buyer", "distributor", "importer"],
+        "weak": ["FOB", "CIF", "EXW", "DDP", "MOQ", "quote", "quotation", "pcs", "container", "certification"],
+    },
+    "trade_quote": {
+        "route": "sales",
+        "tool": "trade_quote",
+        "strong": ["外贸报价", "英文报价", "报价单", "quotation", "proforma invoice", "PI"],
+        "weak": ["FOB", "CIF", "EXW", "DDP", "USD", "unit price", "lead time", "payment"],
+    },
+    "trade_followup": {
+        "route": "sales",
+        "tool": "trade_followup",
+        "strong": ["外贸跟进", "跟进邮件", "WhatsApp回复", "催客户", "follow up", "follow-up"],
+        "weak": ["reply", "email", "客户回复", "补充信息", "after quote", "sample"],
+    },
 }
 
 
@@ -60,10 +78,22 @@ def classify_agent_intent_with_rules(value: str) -> dict[str, Any]:
         scores[intent] = len(strong_hits) * 2.0 + len(weak_hits) * 0.8
         matched[intent] = strong_hits + weak_hits
 
+    if "外贸" in value and any(word in value for word in ["跟进", "催", "回复", "邮件"]):
+        scores["trade_followup"] += 3
+        matched["trade_followup"].append("外贸跟进场景")
+
     # "文案" alone is not enough to override explicit design/sales terms.
     if scores["promo_copy"] <= 0.8 and (scores["design_requirement"] > 0 or scores["sales_lead"] > 0):
         scores["promo_copy"] = 0
-    priority = {"video_generation": 4, "design_requirement": 3, "sales_lead": 2, "promo_copy": 1}
+    priority = {
+        "video_generation": 6,
+        "trade_quote": 5,
+        "trade_followup": 5,
+        "trade_inquiry": 4,
+        "design_requirement": 3,
+        "sales_lead": 2,
+        "promo_copy": 1,
+    }
     intent, score = max(scores.items(), key=lambda item: (item[1], priority[item[0]]))
     if score > 0:
         spec = AGENT_INTENT_CATEGORIES[intent]
@@ -87,6 +117,9 @@ def classify_agent_intent_with_llm(value: str) -> dict[str, Any] | None:
             return None
         allowed_intents = {
             "sales_lead": ("sales", "lead_score"),
+            "trade_inquiry": ("sales", "trade_inquiry"),
+            "trade_quote": ("sales", "trade_quote"),
+            "trade_followup": ("sales", "trade_followup"),
             "design_requirement": ("design", "requirement_card"),
             "promo_copy": ("promo", "promo_copy"),
             "video_generation": ("video", "video_generation"),
@@ -94,13 +127,16 @@ def classify_agent_intent_with_llm(value: str) -> dict[str, Any] | None:
         }
         prompt = (
             "你是家装定制行业 AI Agent 的意图路由器。只输出 JSON，不要输出解释。\n"
-            "可选 intent：sales_lead, design_requirement, promo_copy, video_generation, chat。\n"
+            "可选 intent：sales_lead, trade_inquiry, trade_quote, trade_followup, design_requirement, promo_copy, video_generation, chat。\n"
             "分类原则：\n"
             "1. 视频/短视频/成片/剪辑/宣传片 → video_generation。\n"
-            "2. 小红书/抖音/朋友圈/公众号/推广文案/爆款脚本 → promo_copy。\n"
-            "3. 户型/设计/方案/风格/空间/效果图/需求整理 → design_requirement。\n"
-            "4. 客户线索/预算/报价/量房/到店/成交/跟进 → sales_lead。\n"
-            "5. 其他闲聊、知识库问答或无法判断 → chat。\n"
+            "2. 外贸买家邮件/RFQ/询盘分析/客户质量判断 → trade_inquiry。\n"
+            "3. 英文报价/报价单/PI/外贸报价草稿 → trade_quote。\n"
+            "4. 外贸跟进邮件/WhatsApp回复/报价后催单/补资料话术 → trade_followup。\n"
+            "5. 小红书/抖音/朋友圈/公众号/推广文案/爆款脚本 → promo_copy。\n"
+            "6. 户型/设计/方案/风格/空间/效果图/需求整理 → design_requirement。\n"
+            "7. 国内客户线索/预算/量房/到店/成交/跟进 → sales_lead。\n"
+            "8. 其他闲聊、知识库问答或无法判断 → chat。\n"
             "返回格式：{\"intent\":\"...\",\"confidence\":0到1,\"reason\":\"不超过30字\"}"
         )
         response = provider.chat_completion(

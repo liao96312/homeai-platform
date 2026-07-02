@@ -5,6 +5,8 @@ import ArtifactHistory from './business/ArtifactHistory';
 import DesignRequirementCard from './business/DesignRequirementCard';
 import LeadScoringTool from './business/LeadScoringTool';
 import PromoCopyCard from './business/PromoCopyCard';
+import TradeInquiryTool from './business/TradeInquiryTool';
+import TradeQuoteTool from './business/TradeQuoteTool';
 import VideoGenerationCard from './business/VideoGenerationCard';
 
 export default function BusinessTools({ currentRole, setToast }) {
@@ -325,6 +327,10 @@ export default function BusinessTools({ currentRole, setToast }) {
       />
 
       {canSales && <LeadScoringTool setToast={setToast} />}
+
+      {canSales && <TradeInquiryTool setToast={setToast} />}
+
+      {canSales && <TradeQuoteTool setToast={setToast} />}
 
       <PromoCopyCard
         canPromo={canPromo}

@@ -1,5 +1,7 @@
 ﻿from datetime import datetime, timezone
 
+import json
+
 from fastapi import Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -11,13 +13,15 @@ from backend.app.api.payloads import (
 )
 from backend.app.api.schemas import (
     DesignCardAssignmentRequest, DesignRequirementRequest, LeadScoreRequest,
-    PromoCopyRequest, PromoTemplateRequest,
+    PromoCopyRequest, PromoTemplateRequest, TradeFollowupDraftRequest,
+    TradeInquiryAnalyzeRequest, TradeQuoteDraftRequest,
 )
 from backend.app.models.domain import PromoTemplate, Role, User
 from backend.app.services.business_tools import (
     build_design_requirement_card, build_promo_prompt, parse_promo_content, score_lead,
 )
 from backend.app.services.chat import ChatCompletionRequest, ChatMessage, create_chat_completion
+from backend.app.services.trade_tools import analyze_trade_inquiry, draft_trade_followup, draft_trade_quote
 from backend.app.core.config import settings
 from backend.app.api.routes._routers import router
 from backend.app.api.routes._helpers import (
@@ -43,6 +47,49 @@ def sales_lead_score(req: LeadScoreRequest, user: User = Depends(get_current_use
     artifact = save_artifact(db, "lead_score", f"销售初筛 · {result['grade']}级 · {result['score']}分", req.content, result, user, "completed")
     commit_or_rollback(db)
     return {**result, "artifactId": artifact.id}
+
+
+@router.post("/trade/inquiries/analyze")
+def trade_inquiry_analyze(req: TradeInquiryAnalyzeRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    require_roles(user, {"sales"})
+    if not req.content.strip():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="询盘内容不能为空")
+    result = analyze_trade_inquiry(req.content, req.source)
+    title_bits = [
+        result["extracted"].get("country") or "未知市场",
+        result["extracted"].get("product") or "外贸询盘",
+        f"{result['intentScore']}分",
+    ]
+    artifact = save_artifact(db, "trade_inquiry", " · ".join(title_bits)[:160], req.content, result, user, "completed")
+    add_log(db, "🌐", "外贸询盘分析", f"{result['intentScore']}分 · 操作人：{user.full_name}", "blue")
+    commit_or_rollback(db)
+    return {**result, "artifactId": artifact.id}
+
+
+@router.post("/trade/quotes/draft")
+def trade_quote_draft(req: TradeQuoteDraftRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    require_roles(user, {"sales"})
+    if not req.product.strip():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="产品/型号不能为空")
+    result = draft_trade_quote(req)
+    title = f"{result['tradeTerm']} · {result['product']} · {result['currency']} {result['totalAmount'] or '待确认'}"
+    artifact = save_artifact(db, "trade_quote", title[:160], json.dumps(req.model_dump(), ensure_ascii=False), result, user, "draft")
+    add_log(db, "💵", "外贸报价草稿", f"{result['product']} · 操作人：{user.full_name}", "green")
+    commit_or_rollback(db)
+    return {**result, "artifactId": artifact.id, "artifactStatus": artifact.status}
+
+
+@router.post("/trade/followups/draft")
+def trade_followup_draft(req: TradeFollowupDraftRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    require_roles(user, {"sales"})
+    if not req.content.strip():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="跟进内容不能为空")
+    result = draft_trade_followup(req)
+    title = f"{result['channel']} · {result['subject']}"
+    artifact = save_artifact(db, "trade_followup", title[:160], req.content, result, user, "draft")
+    add_log(db, "✉️", "外贸跟进草稿", f"{result['subject'][:80]} · 操作人：{user.full_name}", "blue")
+    commit_or_rollback(db)
+    return {**result, "artifactId": artifact.id, "artifactStatus": artifact.status}
 
 
 @router.post("/design/requirement-card")

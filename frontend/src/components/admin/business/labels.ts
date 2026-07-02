@@ -1,6 +1,9 @@
 export function artifactTypeLabel(type) {
   return {
     lead_score: '销售初筛',
+    trade_inquiry: '外贸询盘',
+    trade_quote: '外贸报价',
+    trade_followup: '外贸跟进',
     design_card: '设计需求卡',
     promo_copy: '推广文案',
     video_generation: '视频生成'

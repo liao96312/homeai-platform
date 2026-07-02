@@ -62,6 +62,32 @@ class LeadScoreRequest(BaseModel):
     phone: str | None = None
 
 
+class TradeInquiryAnalyzeRequest(BaseModel):
+    content: str
+    source: str = "manual"
+
+
+class TradeQuoteDraftRequest(BaseModel):
+    product: str
+    quantity: str = ""
+    currency: str = "USD"
+    unit_price: float | None = None
+    trade_term: str = "FOB"
+    destination: str = ""
+    payment_terms: str = "T/T 30% deposit, 70% before shipment"
+    lead_time: str = ""
+    moq: str = ""
+    validity_days: int = 7
+    notes: str = ""
+
+
+class TradeFollowupDraftRequest(BaseModel):
+    content: str
+    channel: str = "email"
+    stage: str = "first_reply"
+    tone: str = "professional and concise"
+
+
 class PromoCopyRequest(BaseModel):
     topic: str
     platform: str = "小红书"

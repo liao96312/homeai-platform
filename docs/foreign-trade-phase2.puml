@@ -1,0 +1,83 @@
+@startuml
+title 外贸企业 AI 询盘转化与报价合规中台（二期）
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Microsoft YaHei
+skinparam packageStyle rectangle
+
+actor "海外客户" as Buyer
+actor "外贸销售" as Sales
+actor "销售主管" as Manager
+actor "合规/单证人员" as Compliance
+
+rectangle "海外触点" as Channels {
+  [Email]
+  [WhatsApp]
+  [Alibaba / Made-in-China]
+  [独立站表单]
+  [LinkedIn / Facebook]
+}
+
+rectangle "外贸 AI 中台" as Platform {
+  [消息接入适配器] as Inbound
+  [询盘解析 Agent] as InquiryAgent
+  [采购商画像 Agent] as BuyerAgent
+  [报价助手 Agent] as QuoteAgent
+  [合规提醒 Agent] as ComplianceAgent
+  [跟进助手 Agent] as FollowAgent
+  [人工确认队列] as Review
+}
+
+database "业务数据" as Data {
+  [客户档案]
+  [询盘记录]
+  [报价草稿]
+  [跟进记录]
+}
+
+database "外贸知识库 / RAG" as KB {
+  [产品库]
+  [报价规则库]
+  [物流与贸易条款库]
+  [合规认证库]
+  [英文话术库]
+  [客户案例库]
+}
+
+Buyer --> Channels : 发送询盘/补充需求
+Channels --> Inbound : 统一入站消息
+
+Inbound --> InquiryAgent : 原始询盘
+InquiryAgent --> BuyerAgent : 需求字段\n产品/数量/国家/MOQ/交期
+BuyerAgent --> Data : 更新客户档案\n意向分/买家类型/风险等级
+
+InquiryAgent --> QuoteAgent : 报价所需字段
+QuoteAgent --> KB : 查询产品/报价/物流规则
+QuoteAgent --> Data : 生成报价草稿
+
+InquiryAgent --> ComplianceAgent : 产品 + 目标国家
+ComplianceAgent --> KB : 查询认证/出口限制/平台规则
+ComplianceAgent --> Review : 输出合规提醒\n不确定项标记
+
+BuyerAgent --> FollowAgent : 客户阶段 + 抗拒点
+FollowAgent --> KB : 查询英文话术/案例
+FollowAgent --> Review : 生成跟进邮件/WhatsApp 草稿
+
+Review --> Sales : 待确认报价/回复草稿
+Review --> Compliance : 待确认合规风险
+Sales --> Buyer : 人工确认后发送
+Manager --> Data : 查看转化漏斗\n高意向/流失风险/报价通过率
+
+note right of QuoteAgent
+AI 只生成报价草稿，
+正式价格和贸易条款必须人工确认。
+end note
+
+note right of ComplianceAgent
+AI 只做合规提示和资料整理，
+不替代法律、报关、认证判断。
+end note
+
+@enduml

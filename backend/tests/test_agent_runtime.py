@@ -40,6 +40,21 @@ def test_agent_intent_prefers_design_when_prompt_mentions_copy_and_design_style(
     assert result["route"] == "design"
 
 
+def test_agent_intent_routes_foreign_trade_tools(monkeypatch):
+    monkeypatch.setattr(settings, "agent_intent_classifier", "rules")
+
+    inquiry = classify_agent_intent("德国 distributor 发来 RFQ：请帮我分析这个外贸询盘，500 pcs wardrobe, FOB Shanghai")
+    quote = classify_agent_intent("帮我生成英文报价单 quotation：500 pcs wardrobe, FOB Shanghai, USD")
+    followup = classify_agent_intent("帮我写一封外贸跟进邮件，催客户确认报价后的规格和交期")
+
+    assert inquiry["tool"] == "trade_inquiry"
+    assert inquiry["route"] == "sales"
+    assert quote["tool"] == "trade_quote"
+    assert quote["route"] == "sales"
+    assert followup["tool"] == "trade_followup"
+    assert followup["route"] == "sales"
+
+
 def test_agent_runtime_records_run_steps_and_tool_call():
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(bind=engine)

@@ -14,6 +14,9 @@ from backend.app.api.schemas import (
     DesignRequirementRequest,
     LeadScoreRequest,
     PromoCopyRequest,
+    TradeFollowupDraftRequest,
+    TradeInquiryAnalyzeRequest,
+    TradeQuoteDraftRequest,
     VideoGenerationRequest,
 )
 from backend.app.services.agent_runtime import classify_agent_intent, run_agent
@@ -56,6 +59,34 @@ def dispatch_agent_message(
         from backend.app.api.routes.business import sales_lead_score
         result = sales_lead_score(LeadScoreRequest(content=text), user=user, db=db)
         return {"route": "sales", "tool": "lead_score", "intent": intent, "result": result}
+    if tool == "trade_inquiry":
+        require_roles(user, {"sales"})
+        from backend.app.api.routes.business import trade_inquiry_analyze
+        result = trade_inquiry_analyze(TradeInquiryAnalyzeRequest(content=text, source="agent"), user=user, db=db)
+        return {"route": "sales", "tool": "trade_inquiry", "intent": intent, "result": result}
+    if tool == "trade_quote":
+        require_roles(user, {"sales"})
+        from backend.app.api.routes.business import trade_quote_draft
+        from backend.app.services.trade_tools import analyze_trade_inquiry
+
+        extracted = analyze_trade_inquiry(text, "agent").get("extracted") or {}
+        result = trade_quote_draft(
+            TradeQuoteDraftRequest(
+                product=extracted.get("product") or text[:120],
+                quantity=extracted.get("quantity") or "",
+                trade_term=extracted.get("tradeTerm") or "FOB",
+                destination=extracted.get("country") or "",
+                payment_terms=extracted.get("paymentTerm") or "T/T 30% deposit, 70% before shipment",
+            ),
+            user=user,
+            db=db,
+        )
+        return {"route": "sales", "tool": "trade_quote", "intent": intent, "result": result}
+    if tool == "trade_followup":
+        require_roles(user, {"sales"})
+        from backend.app.api.routes.business import trade_followup_draft
+        result = trade_followup_draft(TradeFollowupDraftRequest(content=text, channel="email"), user=user, db=db)
+        return {"route": "sales", "tool": "trade_followup", "intent": intent, "result": result}
 
     visible_agent = ROLE_AGENT_MAP.get(user.role.key)
     if user.role.key != "admin" and not visible_agent:
@@ -92,6 +123,33 @@ def format_agent_dispatch_reply(dispatch_result: dict) -> str:
             f"建议：{result.get('recommendation')}\n"
             f"识别依据：{signals or '暂无'}\n"
             f"下一步：{actions or '继续补充客户信息'}"
+        )
+    if tool == "trade_inquiry":
+        extracted = result.get("extracted") or {}
+        actions = "；".join(result.get("nextActions") or [])
+        missing = "、".join(result.get("missingFields") or [])
+        return (
+            f"已调用外贸询盘分析：意向 {result.get('intentScore')} 分 / {result.get('stage')}。\n"
+            f"产品：{extracted.get('product') or '待确认'}；数量：{extracted.get('quantity') or '待确认'}；市场：{extracted.get('country') or '待确认'}。\n"
+            f"买家类型：{result.get('buyerType')}；风险：{result.get('riskLevel')}。\n"
+            f"下一步：{actions or '继续补充客户信息'}\n"
+            f"待补信息：{missing or '已基本补齐'}"
+        )
+    if tool == "trade_quote":
+        checklist = "；".join(result.get("checklist") or [])
+        return (
+            "已生成外贸报价草稿。\n"
+            f"产品：{result.get('product')}；条款：{result.get('tradeTerm')}；币种：{result.get('currency')}；总价：{result.get('totalAmount') or '待确认'}。\n"
+            f"报价邮件：\n{str(result.get('emailDraft') or '')[:1400]}\n"
+            f"待确认：{checklist or '暂无'}"
+        )
+    if tool == "trade_followup":
+        missing = "、".join(result.get("missingFields") or [])
+        return (
+            "已生成外贸跟进草稿。\n"
+            f"主题：{result.get('subject')}\n"
+            f"{str(result.get('messageDraft') or '')[:1600]}\n"
+            f"待补信息：{missing or '暂无'}"
         )
     if tool == "requirement_card":
         missing = "、".join(result.get("missingFields") or [])
